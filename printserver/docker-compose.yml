@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+    cups:
+        restart: always
+        build: ./cups
+        ports:
+            - 631:631
+        volumes:
+            - ./cups/cupsd.conf:/etc/cups/cupsd.conf:ro

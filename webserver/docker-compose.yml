@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+    php-image:
+        build: ./php-image
+        image: php-image
+
+    apache:
+        restart: always
+        build: ./apache
+        hostname: webserver
+        networks:
+            lan:
+                ipv4_address: 192.168.1.3
+        depends_on:
+            - php-image
+        volumes:
+            - ./apache/apache2.conf:/etc/apache2/apache2.conf:ro
+            - ./apache/sites-available:/etc/apache2/sites-available:ro
+            - ./apache/sites-enabled:/etc/apache2/sites-enabled
+            - /data/webserver:/data/webserver
+
+    ssh:
+        restart: always
+        build: ./ssh
+        network_mode: service:apache
+        depends_on:
+            - apache
+        volumes:
+            - /etc/passwd:/etc/passwd:ro
+            - /etc/group:/etc/group:ro
+            - /etc/shadow:/etc/shadow:ro
+            - /data/webserver:/data/webserver
+            - /data/webserver:/home/pi
+
+networks:
+    lan:
+        external: true
+        name: network_lan

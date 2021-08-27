@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+    rtmp:
+        restart: always
+        build: ./rtmp
+        ports:
+            - 1935:1935
+        volumes:
+            - ./rtmp/nginx.conf:/etc/nginx/nginx.conf:ro

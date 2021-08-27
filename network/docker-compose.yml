@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+    ip:
+        restart: always
+        build: ./ip
+        networks:
+            lan:
+                ipv4_address: 192.168.1.254
+    radius:
+        restart: always
+        build: ./radius
+        network_mode: service:ip
+        depends_on:
+            - ip
+        volumes:
+            - ./radius/clients.conf:/etc/freeradius/3.0/clients.conf:ro
+            - ./radius/users:/etc/freeradius/3.0/mods-config/files/authorize:ro
+
+    dhcp:
+        restart: always
+        build: ./dhcp
+        network_mode: service:ip
+        depends_on:
+            - ip
+        volumes:
+            - ./dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf:ro
+            - ./dhcp/isc-dhcp-server:/etc/default/isc-dhcp-server:ro
+
+    dns:
+        restart: always
+        build: ./dns
+        network_mode: service:ip
+        depends_on:
+            - ip
+        volumes:
+            - ./dns/db.lan:/etc/bind/db.lan:ro
+            - ./dns/named.conf.local:/etc/bind/named.conf.local:ro
+            - ./dns/named.conf.options:/etc/bind/named.conf.options:ro
+            - ./dns/rpz.block:/etc/bind/rpz.block:ro
+
+networks:
+    lan:
+        driver: macvlan
+        driver_opts:
+            parent: eth0
+        ipam:
+            config:
+                - subnet: 192.168.1.0/24
+                  gateway: 192.168.1.1
+

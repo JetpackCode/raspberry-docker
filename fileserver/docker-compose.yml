@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+    samba:
+        restart: always
+        build: ./samba
+        ports:
+            - 445:445
+        volumes:
+            - ./samba/smb.conf:/etc/samba/smb.conf:ro
+            - ./samba/passdb.tdb:/tmp/passdb.tdb:ro
+            - /data/fileserver:/data/fileserver
+            - /data/webserver:/data/webserver
